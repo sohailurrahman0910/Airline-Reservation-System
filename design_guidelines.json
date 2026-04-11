@@ -1,0 +1,164 @@
+{
+  "theme": "light",
+  "archetype": "4 (Swiss & High-Contrast)",
+  "vibe": "The Terminal - Objective, rigid, functional, highly navigable. Inspired by Swiss airport signage. No gradients, just hard lines and crisp typography.",
+  "colors": {
+    "background": {
+      "canvas": "bg-neutral-50",
+      "surface": "bg-white",
+      "glass": "bg-white/80 backdrop-blur-xl border-b border-neutral-200"
+    },
+    "text": {
+      "primary": "text-neutral-900",
+      "secondary": "text-neutral-500",
+      "mono": "text-neutral-600"
+    },
+    "accent": {
+      "primary": "bg-blue-600 text-white",
+      "primary_hover": "hover:bg-blue-700 hover:text-white",
+      "secondary": "bg-neutral-900 text-white",
+      "secondary_hover": "hover:bg-neutral-800 hover:text-white"
+    },
+    "status": {
+      "available_ontime": "bg-emerald-500 text-white",
+      "booked_delayed": "bg-rose-500 text-white",
+      "selected_boarding": "bg-amber-500 text-white"
+    },
+    "borders": {
+      "default": "border-neutral-200",
+      "focus": "focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+    }
+  },
+  "typography": {
+    "headings": {
+      "family": "font-sans",
+      "google_font": "Cabinet Grotesk",
+      "weight": "font-bold",
+      "tracking": "tracking-tighter",
+      "case": "normal-case",
+      "scale": {
+        "h1": "text-4xl sm:text-5xl lg:text-6xl",
+        "h2": "text-2xl sm:text-3xl lg:text-4xl",
+        "h3": "text-xl sm:text-2xl"
+      }
+    },
+    "body": {
+      "family": "font-sans",
+      "google_font": "IBM Plex Sans",
+      "weight": "font-normal",
+      "leading": "leading-relaxed"
+    },
+    "mono": {
+      "family": "font-mono",
+      "google_font": "JetBrains Mono",
+      "usage": "Flight numbers, seat codes, boarding times, prices, terminal numbers"
+    },
+    "labels": {
+      "style": "text-xs font-bold uppercase tracking-[0.15em] text-neutral-500"
+    }
+  },
+  "layout_and_spacing": {
+    "philosophy": "Grid Borders ('The Technical Look'). Expose the skeleton. High density for admin, generous asymmetry for booking flow.",
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "gaps": {
+      "dense": "gap-4",
+      "standard": "gap-8",
+      "loose": "gap-16 lg:gap-24"
+    },
+    "padding": {
+      "card": "p-6",
+      "section": "py-24"
+    },
+    "radii": {
+      "default": "rounded-none",
+      "button": "rounded-sm",
+      "card": "rounded-sm"
+    },
+    "shadows": {
+      "card": "shadow-none",
+      "popover": "shadow-[0_8px_32px_rgba(0,0,0,0.08)]",
+      "focus": "ring-2 ring-blue-600"
+    }
+  },
+  "components": {
+    "cards": {
+      "style": "bg-white border border-neutral-200 rounded-sm shadow-none overflow-hidden",
+      "header": "border-b border-neutral-100 p-4 sm:p-6"
+    },
+    "buttons": {
+      "primary": "bg-blue-600 text-white rounded-sm px-6 py-3 font-semibold hover:bg-blue-700 transition-colors inline-flex items-center justify-center",
+      "outline": "border border-neutral-200 bg-transparent text-neutral-900 hover:bg-neutral-50 rounded-sm px-6 py-3 font-semibold transition-colors inline-flex items-center justify-center",
+      "ghost": "bg-transparent text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-sm px-4 py-2 transition-colors inline-flex items-center justify-center"
+    },
+    "seat_map": {
+      "container": "p-8 bg-neutral-50 border border-neutral-200 rounded-sm overflow-x-auto",
+      "available": "w-10 h-10 border-2 border-neutral-300 rounded-t-lg rounded-b-sm bg-white hover:border-blue-500 hover:text-blue-600 transition-all cursor-pointer flex items-center justify-center font-mono text-xs text-neutral-500",
+      "selected": "w-10 h-10 border-2 border-blue-600 bg-blue-600 text-white rounded-t-lg rounded-b-sm shadow-md flex items-center justify-center font-mono text-xs font-bold",
+      "occupied": "w-10 h-10 border border-neutral-200 bg-neutral-100 text-neutral-400 rounded-t-lg rounded-b-sm cursor-not-allowed flex items-center justify-center font-mono text-xs",
+      "premium": "border-amber-400 bg-amber-50 hover:bg-amber-100"
+    },
+    "flight_card": {
+      "layout": "flex flex-col md:flex-row items-center justify-between p-6 border border-neutral-200 bg-white hover:border-neutral-300 transition-colors",
+      "time_block": "flex flex-col items-center justify-center font-mono",
+      "duration_line": "flex-1 border-t-2 border-dashed border-neutral-200 mx-8 relative flex items-center justify-center"
+    },
+    "inputs": {
+      "style": "bg-white border border-neutral-200 rounded-sm px-4 py-3 text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all w-full"
+    }
+  },
+  "icons_and_assets": {
+    "library": "lucide-react",
+    "stroke_width": "1.5",
+    "size": {
+      "small": "16",
+      "standard": "20",
+      "large": "24",
+      "huge": "32"
+    }
+  },
+  "media": {
+    "hero_passenger": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/76a9827d-09fd-491d-9473-8f95306785ac/images/8a57cb654ab2e35056c52ae522ea721ada87903ea5e4a1f5edad36459b8c814a.png",
+      "description": "Minimalist Swiss-style poster design of an airplane wing. High contrast geometric aviation art. Use for main landing page hero.",
+      "placement_rules": "Right side of the hero section or background with heavy white/glass overlay."
+    },
+    "airport_interior": {
+      "url": "https://images.unsplash.com/photo-1758087016878-7450e700eba9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDJ8MHwxfHNlYXJjaHwyfHxhaXJwb3J0JTIwdGVybWluYWwlMjBhcmNoaXRlY3R1cmV8ZW58MHx8fHwxNzc1OTEyMTkyfDA&ixlib=rb-4.1.0&q=85",
+      "description": "Modern airport interior walkway.",
+      "placement_rules": "Use for 'About' sections, boarding info cards, or supplementary visual anchors."
+    },
+    "sky_texture": {
+      "url": "https://images.pexels.com/photos/32138449/pexels-photo-32138449.jpeg",
+      "description": "Aerial view of an airplane wing soaring above clouds.",
+      "placement_rules": "Use as a subtle banner background for the 'Booking Confirmation' page."
+    },
+    "admin_bg": {
+      "url": "https://images.pexels.com/photos/36628118/pexels-photo-36628118.png",
+      "description": "Wide interior view of modern architectural design at Madrid Barajas Airport.",
+      "placement_rules": "Use for the Admin Login screen background with a 60% white overlay."
+    },
+    "avatar": {
+      "url": "https://images.unsplash.com/photo-1762522926157-bcc04bf0b10a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMGNsZWFufGVufDB8fHx8MTc3NTkxMjIwNHww&ixlib=rb-4.1.0&q=85",
+      "description": "Professional clean headshot.",
+      "placement_rules": "Use as passenger/admin profile picture."
+    }
+  },
+  "animations": {
+    "hover": "transition-all duration-200 ease-in-out",
+    "page_load": "fade-in slide-up slightly (framer-motion or plain CSS)",
+    "seat_select": "scale up slightly to 1.05 and border color change"
+  },
+  "testing": {
+    "requirements": "All interactive and key informational elements MUST include a 'data-testid' attribute (e.g. data-testid='flight-search-submit', data-testid='seat-14A')."
+  },
+  "instructions_to_main_agent": [
+    "Install and use 'lucide-react' for icons.",
+    "Do not use generic border radius (rounded-md/lg), stick to rounded-sm or rounded-none to maintain the architectural 'Swiss' theme.",
+    "Borders are your primary separation tool, not shadows. Ensure list items, grid cells, and flight rows are separated by 1px border-neutral-200.",
+    "The seat selection map must use a clear 2D grid matrix layout with row numbers (1,2,3) and letters (A,B,C) as coordinates.",
+    "Implement a 'Control Room' grid for the admin dashboard: highly dense, KPI cards at the top, flight lists underneath, rigid alignment.",
+    "For user booking flows, use the bento grid or single column wizard to minimize cognitive load.",
+    "NEVER use placeholder images. Rely solely on the media URLs provided in this file.",
+    "All headings MUST use the 'Cabinet Grotesk' font if you can import it from a font service, or fallback to a sturdy sans-serif and explicitly set the tracking-tighter."
+  ]
+}
