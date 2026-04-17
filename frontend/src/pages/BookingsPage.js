@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Plane, Calendar, MapPin, CreditCard } from 'lucide-react';
@@ -13,15 +13,7 @@ const BookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-    loadBookings();
-  }, [user]);
-
-  const loadBookings = async () => {
+  const loadBookings = useCallback(async () => {
     try {
       const { data } = await axios.get(`${API_URL}/api/bookings`, { withCredentials: true });
       setBookings(data);
@@ -30,7 +22,15 @@ const BookingsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    loadBookings();
+  }, [user, navigate, loadBookings]);
 
   return (
     <div className="min-h-screen bg-neutral-50">

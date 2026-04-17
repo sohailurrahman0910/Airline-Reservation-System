@@ -431,35 +431,34 @@ async def get_seats(flight_id: str):
     seats = await db.seats.find({"flight_id": flight_id}, {"_id": 0}).to_list(1000)
     return seats
 
+# BOOKING HELPERS
+SEAT_PRICE_MULTIPLIERS = {"business": 2.5, "premium": 1.5, "economy": 1.0}
+
+async def validate_booking_seats(flight_id: str, seat_ids: list):
+    """Validate seats exist and are available for the given flight."""
+    seats = await db.seats.find({"id": {"$in": seat_ids}, "flight_id": flight_id}).to_list(1000)
+    if len(seats) != len(seat_ids):
+        raise HTTPException(status_code=400, detail="One or more seats not found")
+    for seat in seats:
+        if not seat["is_available"]:
+            raise HTTPException(status_code=400, detail=f"Seat {seat['seat_number']} is not available")
+    return seats
+
+def calculate_booking_price(seats: list, base_price: float) -> float:
+    """Calculate total price for selected seats based on their type."""
+    return sum(base_price * SEAT_PRICE_MULTIPLIERS.get(s["seat_type"], 1.0) for s in seats)
+
 # BOOKING ENDPOINTS
 @api_router.post("/bookings")
 async def create_booking(booking: BookingCreate, user: dict = Depends(get_current_user)):
     import uuid
     
-    # Verify flight exists
     flight = await db.flights.find_one({"id": booking.flight_id})
     if not flight:
         raise HTTPException(status_code=404, detail="Flight not found")
     
-    # Verify seats are available
-    seats = await db.seats.find({"id": {"$in": booking.seat_ids}, "flight_id": booking.flight_id}).to_list(1000)
-    if len(seats) != len(booking.seat_ids):
-        raise HTTPException(status_code=400, detail="One or more seats not found")
-    
-    for seat in seats:
-        if not seat["is_available"]:
-            raise HTTPException(status_code=400, detail=f"Seat {seat['seat_number']} is not available")
-    
-    # Calculate total price
-    base_price = flight["price"]
-    total_price = 0.0
-    for seat in seats:
-        if seat["seat_type"] == "business":
-            total_price += base_price * 2.5
-        elif seat["seat_type"] == "premium":
-            total_price += base_price * 1.5
-        else:
-            total_price += base_price
+    seats = await validate_booking_seats(booking.flight_id, booking.seat_ids)
+    total_price = calculate_booking_price(seats, flight["price"])
     
     # Create booking
     booking_id = str(uuid.uuid4())
@@ -683,7 +682,7 @@ async def seed_admin():
         f.write("## Admin Account\n")
         f.write(f"- Email: {admin_email}\n")
         f.write(f"- Password: {admin_password}\n")
-        f.write(f"- Role: admin\n\n")
+        f.write("- Role: admin\n\n")
         f.write("## Test Customer Account\n")
         f.write("- Email: customer@test.com\n")
         f.write("- Password: test123\n")

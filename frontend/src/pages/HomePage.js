@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plane, Search, Calendar, MapPin } from 'lucide-react';
 import axios from 'axios';
@@ -18,11 +18,7 @@ const HomePage = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    loadFlights();
-  }, []);
-
-  const loadFlights = async (params = {}) => {
+  const loadFlights = useCallback(async (params = {}) => {
     setLoading(true);
     try {
       const queryParams = new URLSearchParams();
@@ -37,7 +33,11 @@ const HomePage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadFlights();
+  }, [loadFlights]);
 
   const handleSearch = (e) => {
     e.preventDefault();

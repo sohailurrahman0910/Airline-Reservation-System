@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
@@ -25,11 +25,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const { data } = await axios.get(`${API_URL}/api/auth/me`, {
         withCredentials: true,
@@ -40,9 +36,13 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_URL]);
 
-  const register = async (email, password, name) => {
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  const register = useCallback(async (email, password, name) => {
     try {
       const { data } = await axios.post(
         `${API_URL}/api/auth/register`,
@@ -55,9 +55,9 @@ export const AuthProvider = ({ children }) => {
       const message = formatApiErrorDetail(error.response?.data?.detail) || error.message;
       return { success: false, error: message };
     }
-  };
+  }, [API_URL]);
 
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     try {
       const { data } = await axios.post(
         `${API_URL}/api/auth/login`,
@@ -70,19 +70,24 @@ export const AuthProvider = ({ children }) => {
       const message = formatApiErrorDetail(error.response?.data?.detail) || error.message;
       return { success: false, error: message };
     }
-  };
+  }, [API_URL]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await axios.post(`${API_URL}/api/auth/logout`, {}, { withCredentials: true });
       setUser(false);
     } catch (error) {
       console.error('Logout error:', error);
     }
-  };
+  }, [API_URL]);
+
+  const value = useMemo(
+    () => ({ user, loading, register, login, logout, checkAuth }),
+    [user, loading, register, login, logout, checkAuth]
+  );
 
   return (
-    <AuthContext.Provider value={{ user, loading, register, login, logout, checkAuth }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

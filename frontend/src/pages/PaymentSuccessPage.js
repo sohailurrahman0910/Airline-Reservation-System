@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { CheckCircle, Plane } from 'lucide-react';
@@ -14,18 +14,7 @@ const PaymentSuccessPage = () => {
   const [bookingId, setBookingId] = useState('');
   const [attempts, setAttempts] = useState(0);
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-    const sessionId = searchParams.get('session_id');
-    if (sessionId) {
-      pollPaymentStatus(sessionId);
-    }
-  }, [searchParams, user]);
-
-  const pollPaymentStatus = async (sessionId, currentAttempt = 0) => {
+  const pollPaymentStatus = useCallback(async (sessionId, currentAttempt = 0) => {
     const maxAttempts = 5;
     const pollInterval = 2000;
 
@@ -54,7 +43,18 @@ const PaymentSuccessPage = () => {
       console.error('Error checking payment status:', error);
       setStatus('error');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    const sessionId = searchParams.get('session_id');
+    if (sessionId) {
+      pollPaymentStatus(sessionId);
+    }
+  }, [searchParams, user, navigate, pollPaymentStatus]);
 
   return (
     <div className="min-h-screen bg-neutral-50">

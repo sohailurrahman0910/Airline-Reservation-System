@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { CreditCard, Plane } from 'lucide-react';
@@ -15,15 +15,7 @@ const PaymentPage = () => {
   const [processingPayment, setProcessingPayment] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-    loadBooking();
-  }, [bookingId, user]);
-
-  const loadBooking = async () => {
+  const loadBooking = useCallback(async () => {
     try {
       const { data } = await axios.get(`${API_URL}/api/bookings`, { withCredentials: true });
       const currentBooking = data.find((b) => b.id === bookingId);
@@ -37,7 +29,15 @@ const PaymentPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [bookingId]);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    loadBooking();
+  }, [bookingId, user, navigate, loadBooking]);
 
   const handlePayment = async () => {
     setProcessingPayment(true);
