@@ -205,10 +205,7 @@ async def register(user: UserRegister, response: Response):
     access_token = create_access_token(user_id, email, "customer")
     refresh_token = create_refresh_token(user_id)
     
-    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=False, samesite="lax", max_age=900, path="/")
-    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="lax", max_age=604800, path="/")
-    
-    return {"id": user_id, "email": email, "name": user.name, "role": "customer"}
+    return {"id": user_id, "email": email, "name": user.name, "role": "customer", "access_token": access_token, "refresh_token": refresh_token}
 
 @api_router.post("/auth/login")
 async def login(credentials: UserLogin, response: Response):
@@ -248,13 +245,10 @@ async def login(credentials: UserLogin, response: Response):
     access_token = create_access_token(user_id, email, user.get("role", "customer"))
     refresh_token = create_refresh_token(user_id)
     
-    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=False, samesite="lax", max_age=900, path="/")
-    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="lax", max_age=604800, path="/")
-    
-    return {"id": user_id, "email": email, "name": user.get("name"), "role": user.get("role", "customer")}
+    return {"id": user_id, "email": email, "name": user.get("name"), "role": user.get("role", "customer"), "access_token": access_token, "refresh_token": refresh_token}
 
 @api_router.post("/auth/logout")
-async def logout(response: Response, user: dict = Depends(get_current_user)):
+async def logout(response: Response):
     response.delete_cookie(key="access_token", path="/")
     response.delete_cookie(key="refresh_token", path="/")
     return {"message": "Logged out successfully"}
@@ -263,11 +257,12 @@ async def logout(response: Response, user: dict = Depends(get_current_user)):
 async def get_me(user: dict = Depends(get_current_user)):
     return user
 
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+
 @api_router.post("/auth/refresh")
-async def refresh_token(request: Request, response: Response):
-    token = request.cookies.get("refresh_token")
-    if not token:
-        raise HTTPException(status_code=401, detail="Refresh token not found")
+async def refresh_token_endpoint(body: RefreshTokenRequest):
+    token = body.refresh_token
     try:
         payload = jwt.decode(token, get_jwt_secret(), algorithms=[JWT_ALGORITHM])
         if payload.get("type") != "refresh":
@@ -277,9 +272,8 @@ async def refresh_token(request: Request, response: Response):
             raise HTTPException(status_code=401, detail="User not found")
         
         user_id = str(user["_id"])
-        access_token = create_access_token(user_id, user["email"], user.get("role", "customer"))
-        response.set_cookie(key="access_token", value=access_token, httponly=True, secure=False, samesite="lax", max_age=900, path="/")
-        return {"message": "Token refreshed"}
+        new_access = create_access_token(user_id, user["email"], user.get("role", "customer"))
+        return {"access_token": new_access}
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Refresh token expired")
     except jwt.InvalidTokenError:
