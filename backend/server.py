@@ -176,6 +176,11 @@ class CheckoutRequest(BaseModel):
     booking_id: str
     origin_url: str
 
+class DirectPayRequest(BaseModel):
+    booking_id: str
+    payment_method: str  # "upi", "netbanking", "card"
+    payment_details: Optional[Dict] = None
+
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
 
@@ -632,6 +637,37 @@ async def stripe_webhook(request: Request):
         return {"status": "success"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+# Direct payment endpoint for UPI / Net Banking (simulated)
+@api_router.post("/payments/direct")
+async def direct_payment(request: DirectPayRequest, user: dict = Depends(get_current_user)):
+    import uuid as _uuid
+    booking = await db.bookings.find_one({"id": request.booking_id, "user_id": user["id"]})
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    if booking["payment_status"] == "paid":
+        raise HTTPException(status_code=400, detail="Booking already paid")
+
+    txn_id = str(_uuid.uuid4())
+    await db.payment_transactions.insert_one({
+        "session_id": txn_id,
+        "booking_id": request.booking_id,
+        "user_id": user["id"],
+        "amount": booking["total_price"],
+        "currency": "usd",
+        "status": "complete",
+        "payment_status": "paid",
+        "payment_method": request.payment_method,
+        "payment_details": request.payment_details or {},
+        "created_at": datetime.now(timezone.utc),
+    })
+
+    await db.bookings.update_one(
+        {"id": request.booking_id},
+        {"$set": {"payment_status": "paid", "status": "confirmed"}}
+    )
+
+    return {"status": "paid", "booking_id": request.booking_id, "transaction_id": txn_id}
 
 # ADMIN STATS
 @api_router.get("/admin/stats")
