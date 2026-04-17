@@ -472,7 +472,14 @@ async def create_booking(booking: BookingCreate, user: dict = Depends(get_curren
         "total_price": round(total_price, 2),
         "booking_date": datetime.now(timezone.utc),
         "status": "pending",
-        "payment_status": "pending"
+        "payment_status": "pending",
+        "flight_snapshot": {
+            "flight_number": flight["flight_number"],
+            "origin": flight["origin"],
+            "destination": flight["destination"],
+            "departure_time": flight["departure_time"].isoformat() if isinstance(flight["departure_time"], datetime) else flight["departure_time"],
+            "arrival_time": flight["arrival_time"].isoformat() if isinstance(flight["arrival_time"], datetime) else flight["arrival_time"],
+        }
     }
     await db.bookings.insert_one(booking_doc)
     
