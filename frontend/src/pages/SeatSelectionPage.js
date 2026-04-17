@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Plane, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, api } from '../contexts/AuthContext';
 import { SeatButton } from '../components/seats/SeatButton';
 import { BookingSummary } from '../components/seats/BookingSummary';
-
-const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const SEAT_MULTIPLIERS = { business: 2.5, premium: 1.5, economy: 1.0 };
 
@@ -47,8 +44,8 @@ const SeatSelectionPage = () => {
   const loadFlightAndSeats = useCallback(async () => {
     try {
       const [flightRes, seatsRes] = await Promise.all([
-        axios.get(`${API_URL}/api/flights/${flightId}`),
-        axios.get(`${API_URL}/api/flights/${flightId}/seats`),
+        api.get(`/api/flights/${flightId}`),
+        api.get(`/api/flights/${flightId}/seats`),
       ]);
       setFlight(flightRes.data);
       setSeats(seatsRes.data);
@@ -91,10 +88,9 @@ const SeatSelectionPage = () => {
     setBookingLoading(true);
     setError('');
     try {
-      const { data } = await axios.post(
-        `${API_URL}/api/bookings`,
-        { flight_id: flightId, seat_ids: selectedSeats },
-        { withCredentials: true }
+      const { data } = await api.post(
+        '/api/bookings',
+        { flight_id: flightId, seat_ids: selectedSeats }
       );
       navigate(`/payment/${data.id}`);
     } catch (err) {

@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Plane, Calendar, MapPin, CreditCard } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, api } from '../contexts/AuthContext';
 import { format } from 'date-fns';
-
-const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const BookingsPage = () => {
   const navigate = useNavigate();
@@ -15,7 +12,7 @@ const BookingsPage = () => {
 
   const loadBookings = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${API_URL}/api/bookings`, { withCredentials: true });
+      const { data } = await api.get('/api/bookings');
       setBookings(data);
     } catch (error) {
       console.error('Error loading bookings:', error);

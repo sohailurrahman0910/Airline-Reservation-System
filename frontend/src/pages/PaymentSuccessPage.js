@@ -1,10 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
 import { CheckCircle, Plane } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+import { useAuth, api } from '../contexts/AuthContext';
 
 const PaymentSuccessPage = () => {
   const [searchParams] = useSearchParams();
@@ -24,9 +21,7 @@ const PaymentSuccessPage = () => {
     }
 
     try {
-      const { data } = await axios.get(`${API_URL}/api/payments/checkout/status/${sessionId}`, {
-        withCredentials: true,
-      });
+      const { data } = await api.get(`/api/payments/checkout/status/${sessionId}`);
 
       if (data.payment_status === 'paid') {
         setStatus('success');

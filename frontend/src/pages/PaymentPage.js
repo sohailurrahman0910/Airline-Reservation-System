@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { CreditCard, Plane } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+import { useAuth, api } from '../contexts/AuthContext';
 
 const PaymentPage = () => {
   const { bookingId } = useParams();
@@ -17,7 +14,7 @@ const PaymentPage = () => {
 
   const loadBooking = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${API_URL}/api/bookings`, { withCredentials: true });
+      const { data } = await api.get('/api/bookings');
       const currentBooking = data.find((b) => b.id === bookingId);
       if (currentBooking) {
         setBooking(currentBooking);
@@ -45,13 +42,12 @@ const PaymentPage = () => {
 
     try {
       const originUrl = window.location.origin;
-      const { data } = await axios.post(
-        `${API_URL}/api/payments/checkout`,
+      const { data } = await api.post(
+        '/api/payments/checkout',
         {
           booking_id: bookingId,
           origin_url: originUrl,
-        },
-        { withCredentials: true }
+        }
       );
 
       if (data.url) {

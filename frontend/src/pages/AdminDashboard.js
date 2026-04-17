@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Plane, Plus } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, api } from '../contexts/AuthContext';
 import { StatsGrid } from '../components/admin/StatsGrid';
 import { FlightForm, INITIAL_FORM } from '../components/admin/FlightForm';
 import { FlightTable } from '../components/admin/FlightTable';
 import { BookingsTable } from '../components/admin/BookingsTable';
-
-const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -24,9 +21,9 @@ const AdminDashboard = () => {
   const loadData = useCallback(async () => {
     try {
       const [statsRes, flightsRes, bookingsRes] = await Promise.all([
-        axios.get(`${API_URL}/api/admin/stats`, { withCredentials: true }),
-        axios.get(`${API_URL}/api/admin/flights`, { withCredentials: true }),
-        axios.get(`${API_URL}/api/admin/bookings`, { withCredentials: true }),
+        api.get('/api/admin/stats'),
+        api.get('/api/admin/flights'),
+        api.get('/api/admin/bookings'),
       ]);
       setStats(statsRes.data);
       setFlights(flightsRes.data);
@@ -49,16 +46,15 @@ const AdminDashboard = () => {
   const handleFlightSubmit = useCallback(async (e) => {
     e.preventDefault();
     try {
-      await axios.post(
-        `${API_URL}/api/admin/flights`,
+      await api.post(
+        '/api/admin/flights',
         {
           ...flightForm,
           price: parseFloat(flightForm.price),
           total_seats: parseInt(flightForm.total_seats),
           departure_time: new Date(flightForm.departure_time).toISOString(),
           arrival_time: new Date(flightForm.arrival_time).toISOString(),
-        },
-        { withCredentials: true }
+        }
       );
       setShowFlightForm(false);
       setFlightForm(INITIAL_FORM);
@@ -71,7 +67,7 @@ const AdminDashboard = () => {
   const handleDeleteFlight = useCallback(async (flightId) => {
     if (!window.confirm('Are you sure you want to delete this flight?')) return;
     try {
-      await axios.delete(`${API_URL}/api/admin/flights/${flightId}`, { withCredentials: true });
+      await api.delete(`/api/admin/flights/${flightId}`);
       loadData();
     } catch (error) {
       console.error('Error deleting flight:', error);

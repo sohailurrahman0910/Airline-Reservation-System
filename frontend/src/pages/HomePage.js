@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plane, Search, Calendar, MapPin } from 'lucide-react';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
-
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+import { api } from '../contexts/AuthContext';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -26,7 +24,7 @@ const HomePage = () => {
       if (params.destination) queryParams.append('destination', params.destination);
       if (params.date) queryParams.append('date', params.date);
 
-      const { data } = await axios.get(`${API_URL}/api/flights?${queryParams.toString()}`);
+      const { data } = await api.get(`/api/flights?${queryParams.toString()}`);
       setFlights(data);
     } catch (error) {
       console.error('Error loading flights:', error);

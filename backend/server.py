@@ -30,7 +30,7 @@ api_router = APIRouter(prefix="/api")
 
 # JWT Configuration
 JWT_ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 15
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 def get_jwt_secret() -> str:
