@@ -218,7 +218,10 @@ async def login(credentials: UserLogin, response: Response):
     identifier = f"{email}"
     attempt = await db.login_attempts.find_one({"identifier": identifier})
     if attempt and attempt.get("locked_until"):
-        if datetime.now(timezone.utc) < attempt["locked_until"]:
+        locked = attempt["locked_until"]
+        if locked.tzinfo is None:
+            locked = locked.replace(tzinfo=timezone.utc)
+        if datetime.now(timezone.utc) < locked:
             raise HTTPException(status_code=429, detail="Too many failed attempts. Please try again later.")
     
     user = await db.users.find_one({"email": email})
@@ -693,9 +696,75 @@ async def seed_admin():
         f.write("/api/auth/logout\n")
         f.write("/api/auth/me\n")
 
+async def seed_flights():
+    """Seed sample flights if none exist."""
+    import uuid as _uuid
+    count = await db.flights.count_documents({})
+    if count > 0:
+        return
+
+    sample_flights = [
+        {"fn": "SK101", "origin": "New York (JFK)", "dest": "London (LHR)", "price": 549.00, "hours": 7, "mins": 30},
+        {"fn": "SK202", "origin": "Los Angeles (LAX)", "dest": "Tokyo (NRT)", "price": 899.00, "hours": 11, "mins": 15},
+        {"fn": "SK303", "origin": "Chicago (ORD)", "dest": "Paris (CDG)", "price": 629.00, "hours": 8, "mins": 45},
+        {"fn": "SK404", "origin": "San Francisco (SFO)", "dest": "Sydney (SYD)", "price": 1150.00, "hours": 15, "mins": 30},
+        {"fn": "SK505", "origin": "Miami (MIA)", "dest": "Dubai (DXB)", "price": 780.00, "hours": 14, "mins": 0},
+        {"fn": "SK606", "origin": "New York (JFK)", "dest": "Dubai (DXB)", "price": 850.00, "hours": 13, "mins": 30},
+        {"fn": "SK707", "origin": "London (LHR)", "dest": "Singapore (SIN)", "price": 720.00, "hours": 12, "mins": 45},
+        {"fn": "SK808", "origin": "Paris (CDG)", "dest": "Tokyo (NRT)", "price": 950.00, "hours": 12, "mins": 0},
+        {"fn": "SK909", "origin": "Los Angeles (LAX)", "dest": "London (LHR)", "price": 680.00, "hours": 10, "mins": 30},
+        {"fn": "SK110", "origin": "Chicago (ORD)", "dest": "Rome (FCO)", "price": 590.00, "hours": 9, "mins": 15},
+        {"fn": "SK211", "origin": "San Francisco (SFO)", "dest": "Seoul (ICN)", "price": 810.00, "hours": 11, "mins": 0},
+        {"fn": "SK312", "origin": "Miami (MIA)", "dest": "Sao Paulo (GRU)", "price": 480.00, "hours": 8, "mins": 30},
+    ]
+
+    base_date = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=3)
+
+    for i, fl in enumerate(sample_flights):
+        flight_id = str(_uuid.uuid4())
+        dep = base_date + timedelta(days=i % 7, hours=6 + (i * 2) % 12)
+        arr = dep + timedelta(hours=fl["hours"], minutes=fl["mins"])
+        total_seats = 180
+
+        flight_doc = {
+            "id": flight_id,
+            "flight_number": fl["fn"],
+            "origin": fl["origin"],
+            "destination": fl["dest"],
+            "departure_time": dep,
+            "arrival_time": arr,
+            "duration": f"{fl['hours']}h {fl['mins']}m",
+            "price": fl["price"],
+            "aircraft_type": "Boeing 737" if i % 2 == 0 else "Airbus A320",
+            "total_seats": total_seats,
+            "available_seats": total_seats,
+            "status": "scheduled",
+            "created_at": datetime.now(timezone.utc),
+        }
+        await db.flights.insert_one(flight_doc)
+
+        seats = []
+        rows = total_seats // 6
+        for row in range(1, rows + 1):
+            for col in ["A", "B", "C", "D", "E", "F"]:
+                seat_type = "business" if row <= 3 else "premium" if row <= 10 else "economy"
+                seats.append({
+                    "id": str(_uuid.uuid4()),
+                    "flight_id": flight_id,
+                    "seat_number": f"{row}{col}",
+                    "row": row,
+                    "column": col,
+                    "seat_type": seat_type,
+                    "is_available": True,
+                })
+        await db.seats.insert_many(seats)
+
+    logger.info(f"Seeded {len(sample_flights)} flights")
+
 @app.on_event("startup")
 async def startup():
     await seed_admin()
+    await seed_flights()
     # Create indexes
     await db.users.create_index("email", unique=True)
     await db.password_reset_tokens.create_index("expires_at", expireAfterSeconds=0)

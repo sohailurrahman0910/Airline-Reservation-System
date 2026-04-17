@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Plane } from 'lucide-react';
+import { Plane, Eye, EyeOff } from 'lucide-react';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -66,16 +67,26 @@ const LoginPage = () => {
                 <label htmlFor="password" className="block text-xs font-bold uppercase tracking-[0.15em] text-neutral-500 mb-2">
                   Password
                 </label>
-                <input
-                  id="password"
-                  type="password"
-                  data-testid="login-password-input"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="bg-white border border-neutral-200 rounded-sm px-4 py-3 text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all w-full"
-                  placeholder="••••••••"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    data-testid="login-password-input"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-white border border-neutral-200 rounded-sm px-4 py-3 text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all w-full pr-12"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    data-testid="toggle-password-visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
               </div>
 
               <button
